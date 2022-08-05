@@ -1,7 +1,7 @@
 ## Local Use
 
 1. 根据[这里](https://www.jianshu.com/p/9535334ffd54)安装ruby + jekyll
-2. 每次定位到本目录，使用jekyll s
+2. 每次定位到本目录，使用 `jekyll s`
 3. 访问 http://127.0.0.1:4000/ 即可本地查看
 
 ## 致谢
