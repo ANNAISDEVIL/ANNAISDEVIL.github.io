@@ -1,0 +1,177 @@
+I";<p><a href="https://www.cnblogs.com/li-peng/p/14136068.html">Reference</a></p>
+
+<h1 id="install">Install</h1>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">git clone https://github.com/jbeder/yaml-cpp.git</code></p>
+  </li>
+  <li>
+    <p>In the source directory:</p>
+  </li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>build
+<span class="nb">cd </span>build 
+cmake .. 
+make 
+
+// you can also use <span class="s2">"make install"</span> directly <span class="nb">install </span>to <span class="s2">"/usr/local/bin"</span>
+</code></pre></div></div>
+
+<h1 id="configuration">Configuration</h1>
+
+<ul>
+  <li>configurate your project’s <code class="language-plaintext highlighter-rouge">CMakeLists.txt</code>:</li>
+</ul>
+
+<pre><code class="language-CMake">pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
+find_path(YAML_CPP_INCLUDE_DIR
+          NAMES yaml_cpp.h
+          PATHS ${YAML_CPP_INCLUDE_DIRS})
+find_library(YAML_CPP_LIBRARY
+             NAMES YAML_CPP
+             PATHS ${YAML_CPP_LIBRARY_DIRS})
+link_directories(${YAML_CPP_LIBRARY_DIRS})
+
+
+include_directories( ${YAMLCPP_INCLUDE_DIRS})
+
+
+target_link_libraries(${PROJECT_NAME} yaml-cpp)
+</code></pre>
+
+<h1 id="read">Read</h1>
+
+<ul>
+  <li>Our .yaml file as follow:</li>
+</ul>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">api</span><span class="pi">:</span> <span class="s">aaaaa</span>
+<span class="na">v</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="na">label</span><span class="pi">:</span>
+  <span class="na">app</span><span class="pi">:</span> <span class="s">hello</span>
+  <span class="na">image</span><span class="pi">:</span> <span class="s">abc</span>
+  
+<span class="na">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">abc</span>
+    <span class="na">age</span><span class="pi">:</span> <span class="m">18</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="m">222</span>
+    <span class="na">age</span><span class="pi">:</span> <span class="m">12</span>
+</code></pre></div></div>
+
+<ul>
+  <li>firstly, we need create a <strong>node object</strong> to load yaml, our node called <code class="language-plaintext highlighter-rouge">config</code></li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">YAML</span><span class="o">::</span><span class="n">Node</span> <span class="n">config</span> <span class="o">=</span> <span class="n">YAML</span><span class="o">::</span><span class="n">LoadFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Now, all data from yaml are already loaded in <code class="language-plaintext highlighter-rouge">config</code>
+we need load values depend on their data structure</p>
+
+<h2 id="value">value</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">api</code> and <code class="language-plaintext highlighter-rouge">v</code> are simple value, we can directly read</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"api: "</span> <span class="o">&lt;&lt;</span> <span class="n">config</span><span class="p">[</span><span class="s">"api"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"v: "</span> <span class="o">&lt;&lt;</span> <span class="n">config</span><span class="p">[</span><span class="s">"v"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+</code></pre></div></div>
+
+<h2 id="map-key---value-pair">map (key - value pair)</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">label</code> is the map, we need use</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> 
+<span class="k">struct</span> <span class="nc">convert</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>convert data</p>
+
+<ul>
+  <li>Example in .hpp file:</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">label</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">app</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">image</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">namespace</span> <span class="n">YAML</span> <span class="p">{</span>
+    <span class="k">template</span><span class="o">&lt;</span><span class="p">&gt;</span>
+    <span class="k">struct</span> <span class="nc">convert</span><span class="o">&lt;</span><span class="n">label</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">static</span> <span class="n">Node</span> <span class="n">encode</span><span class="p">(</span><span class="k">const</span> <span class="n">label</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">Node</span> <span class="n">node</span><span class="p">;</span>
+            <span class="n">node</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">app</span><span class="p">);</span>
+            <span class="n">node</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">image</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">static</span> <span class="kt">bool</span> <span class="n">decode</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">,</span> <span class="n">label</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">node</span><span class="p">.</span><span class="n">Type</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s">"app"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s">"image"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li>Then in .cpp:</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">label</span> <span class="n">l</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">"label"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">label</span><span class="o">&gt;</span><span class="p">();</span> 
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"app: "</span> <span class="o">&lt;&lt;</span> <span class="n">l</span><span class="p">.</span><span class="n">app</span> <span class="o">&lt;&lt;</span> <span class="s">" image: "</span> <span class="o">&lt;&lt;</span> <span class="n">l</span><span class="p">.</span><span class="n">image</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h2 id="vector">vector</h2>
+
+<ul>
+  <li>similar like map
+.hpp:</li>
+</ul>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="nc">container</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">age</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">namespace</span> <span class="n">YAML</span> <span class="p">{</span>
+    <span class="k">template</span><span class="o">&lt;</span><span class="p">&gt;</span>
+    <span class="k">struct</span> <span class="nc">convert</span><span class="o">&lt;</span><span class="n">container</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">static</span> <span class="n">Node</span> <span class="n">encode</span><span class="p">(</span><span class="k">const</span> <span class="n">container</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">Node</span> <span class="n">node</span><span class="p">;</span>
+            <span class="n">node</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+            <span class="n">node</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">age</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">static</span> <span class="kt">bool</span> <span class="n">decode</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">,</span> <span class="n">container</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s">"name"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="n">rhs</span><span class="p">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s">"age"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+            <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>.cpp:</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">container</span><span class="o">&gt;</span> <span class="n">vi</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">"containers"</span><span class="p">].</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">container</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">container</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"vector: name: "</span> <span class="o">&lt;&lt;</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">name</span> <span class="o">&lt;&lt;</span> <span class="s">" age: "</span> <span class="o">&lt;&lt;</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">age</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="summary">Summary</h1>
+
+<p>Read .yaml in cpp is litte hard than in python, but consider most of ros project based on .cpp, we need such knowledge to read config file from yaml.</p>
+:ET
