@@ -3,7 +3,7 @@ title: HJ Blog
 SEOTitle: HJ Blog
 header-img: img/post-bg-desk.jpg
 email: zenghuajian97@gmail.com
-description: "Every failure is leading towards success."
+description: "Learn to walk before you run."
 keyword: "BY, BY Blog, 柏荧的博客, qiubaiying, 邱柏荧, iOS, Apple, iPhone"
 url: "http://zenghjian.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
@@ -12,7 +12,7 @@ github_repo: "https://github.com/zenghjian/zenghjian.github.io.git" # you code r
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 # sidebar-about-description: "Goals determine what you going to be!"
-sidebar-avatar: /img/avatar-m.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/tom.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
