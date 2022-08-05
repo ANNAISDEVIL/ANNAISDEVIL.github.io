@@ -1,0 +1,214 @@
+I",<h1 id="source">Source</h1>
+<ul>
+  <li>总是先 <code class="language-plaintext highlighter-rouge">source /opt/ros/noetic/setup.bash</code></li>
+  <li>一旦类似于<code class="language-plaintext highlighter-rouge">roscd</code> 找不到package，则使用以下命令:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/catkin_ws
+source devel/setup.bash
+roscd beginner_tutorials
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h1 id="rospack">rospack</h1>
+<p><strong>find</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rospack find [package_name]</code> 查找package位置</li>
+</ul>
+
+<p><strong>depends</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rospack depends1 beginner_tutorials</code> 查找beginner_tutorials的一级依赖</li>
+  <li><code class="language-plaintext highlighter-rouge">rospack depends beginner_tutorials</code> 查找beginner_tutorials的所有依赖(包括间接依赖)</li>
+</ul>
+
+<h1 id="roscd">roscd</h1>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">roscd [locationname[/subdir]]</code> cd到指定位置</li>
+  <li><code class="language-plaintext highlighter-rouge">roscd log</code> 查看日志</li>
+</ul>
+
+<h1 id="rosls">rosls</h1>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rosls [locationname[/subdir]]</code> 直接软件包位置ls</li>
+</ul>
+
+<h1 id="roscp">roscp</h1>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">roscp [package_name] [file_to_copy_path] [copy_path]</code> 将文件从一个包复制到另一个包</li>
+</ul>
+
+<h1 id="catkin">Catkin</h1>
+<ul>
+  <li>创建catkin软件包<br />
+<code class="language-plaintext highlighter-rouge">catkin_create_pkg &lt;package_name&gt; [depend1] [depend2] [depend3]</code><br />
+example:
+<code class="language-plaintext highlighter-rouge">catkin_create_pkg beginner_tutorials std_msgs rospy roscpp</code></li>
+  <li>构建catkin工作区并使配置生效
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/catkin_ws
+catkin_make
+. ~/catkin_ws/devel/setup.bash # 每次构建都需要source一下`setup.bash`
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h1 id="ros-node">ROS Node</h1>
+<p>考虑 <strong><em>Publish-Subscribe Model</em></strong>, Node是整个操作流程中的一个节点</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">roscore</code> - 开始ros的第一步</p>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rosnode list</code> - 查找节点列表<br />
+产生<code class="language-plaintext highlighter-rouge">/rosout</code>，用于收集和记录节点的调试输出，所以它总是在运行的
+***</li>
+  <li><code class="language-plaintext highlighter-rouge">rosnode info /rosout</code> 查看节点详细信息</li>
+  <li><code class="language-plaintext highlighter-rouge">rosnode cleanup</code> 清理节点列表
+***</li>
+  <li><code class="language-plaintext highlighter-rouge">rosrun [package_name] [node_name]</code> 运行给定的软件包中的节点</li>
+  <li><code class="language-plaintext highlighter-rouge">rosrun turtlesim turtlesim_node __name:=my_turtle</code> 可重命名</li>
+</ul>
+
+<h1 id="rostopic">rostopic</h1>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rostopic</code> 获取ROS话题的信息 (连续两下tab查看可用指令)</li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic echo [topic]</code> 获取指定topic的信息。此时运行echo的terminal也subscribe了topic的信息，因此在<strong>rqt-graph</strong>中可以看到rostopic</li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic list -h</code> 获取所有topic的列表。使用 <code class="language-plaintext highlighter-rouge">-h</code> 获取更多信息</li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic type [topic]</code> 获取message的类型</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rosmsg show [message type]</code> 获取type的详情</p>
+
+    <p>以上两者结合: <code class="language-plaintext highlighter-rouge">rostopic type /turtle1/cmd_vel | rosmsg show</code></p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rostopic pub [topic] [msg_type] [args]</code> publish message 到指定topic</p>
+
+    <p>example: <code class="language-plaintext highlighter-rouge">rostopic pub -1 /turtle1/cmd_vel geometry_msgs/Twist -- '[2.0, 0.0, 0.0]' '[0.0, 0.0, 1.8]'</code></p>
+
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">rostopic pub</code> 发布消息</li>
+      <li><code class="language-plaintext highlighter-rouge">-1</code> 发布一条信息</li>
+      <li><code class="language-plaintext highlighter-rouge">/turtle1/cmd_vel</code> topic name</li>
+      <li><code class="language-plaintext highlighter-rouge">geometry_msgs/Twist</code> message type</li>
+      <li><code class="language-plaintext highlighter-rouge">--</code> 声明之后的参数都不是选项</li>
+      <li><code class="language-plaintext highlighter-rouge">'[2.0, 0.0, 0.0]' '[0.0, 0.0, 1.8]'</code> value</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic pub ... -r</code> 不断发送指令</li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic hz [topic]</code> 获取发布速率HZ</li>
+</ul>
+
+<h1 id="rosservice">rosservice</h1>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rosservice list</code> 输出活跃服务的信息</li>
+  <li>`rosservice type [service] 输出service的类型，是否需要参数等等
+    <ul>
+      <li>最好和<code class="language-plaintext highlighter-rouge">rossrv show</code>联合使用: <code class="language-plaintext highlighter-rouge">rosservice type /spawn | rossrv show</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rosservice call [service] [args]</code> 用给定的参数调用服务</li>
+  <li><code class="language-plaintext highlighter-rouge">rosservice type</code>         输出服务的类型</li>
+  <li><code class="language-plaintext highlighter-rouge">rosservice find</code>         按服务的类型查找服务</li>
+  <li><code class="language-plaintext highlighter-rouge">rosservice uri</code>          输出服务的ROSRPC uri</li>
+</ul>
+
+<h1 id="rosparam">rosparam</h1>
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rosparam set [param_name]</code>            设置参数</p>
+
+    <ul>
+      <li>set 后需要使用clear生效: <code class="language-plaintext highlighter-rouge">rosservice call /clear</code></li>
+    </ul>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rosparam get [param_name]</code>            获取参数</p>
+
+    <ul>
+      <li>获取参数服务器上的所有内容: <code class="language-plaintext highlighter-rouge">rosparam get /</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rosparam load [file_name] [namespace]</code>           从文件中加载参数</li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rosparam dump [file_name] [namespace]</code>           向文件中转储参数</p>
+
+    <ul>
+      <li>一般是.yaml文件: <code class="language-plaintext highlighter-rouge">rosparam dump params.yaml</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rosparam delete</code>         删除参数</li>
+  <li><code class="language-plaintext highlighter-rouge">rosparam list</code>           列出参数名</li>
+</ul>
+
+<h1 id="rqt">rqt</h1>
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">rosrun rqt_graph rqt_graph</code> 打开查看node和topic关系的graph</p>
+
+    <ul>
+      <li>也可以直接 <code class="language-plaintext highlighter-rouge">rpt</code> 或者 <code class="language-plaintext highlighter-rouge">rqt_graph</code>打开</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rosrun rqt_plot rqt_plot</code> 打开动态显示topic中数据的plot</li>
+  <li><code class="language-plaintext highlighter-rouge">rosrun rqt_console rqt_console</code> 查看日志</li>
+  <li><code class="language-plaintext highlighter-rouge">rosrun rqt_logger_level rqt_logger_level</code> 设置logger_level，如设置Warn，则只会显示Warn以上的消息
+    <ul>
+      <li>Fatal （致命）</li>
+      <li>Error （错误）</li>
+      <li>Warn  （警告）</li>
+      <li>Info  （信息）</li>
+      <li>Debug （调试）</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="roslaunch">roslaunch</h1>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">roslaunch [package] [filename.launch]</code> 启动一个运行脚本(如同时启动多个节点)</li>
+</ul>
+
+<h1 id="rosed">rosed</h1>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rosed [package_name] [filename]</code> 通过vim打开文件</li>
+  <li><code class="language-plaintext highlighter-rouge">rosed [package_name] &lt;tab&gt;&lt;tab&gt;</code> 查看pkg下的所有文件</li>
+</ul>
+
+<h1 id="msg--srv">msg &amp; srv</h1>
+<ul>
+  <li>在使用msg和srv之前，需要在<code class="language-plaintext highlighter-rouge">package.xml</code>添加依赖，在<code class="language-plaintext highlighter-rouge">CMakeLists.txt</code>中调用和添加，见<a href="http://wiki.ros.org/cn/ROS/Tutorials/CreatingMsgAndSrv">ROS_Tutorial_10</a></li>
+  <li>根据<a href="http://wiki.ros.org/cn/ROS/Tutorials/CreatingMsgAndSrv">ROS_Tutorial_10</a>第4节的内容，<code class="language-plaintext highlighter-rouge">.msg</code>和<code class="language-plaintext highlighter-rouge">.srv</code>通过以下命令可以生成对应语言的源代码
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># In your catkin workspace
+$ roscd beginner_tutorials
+$ cd ../..
+$ catkin_make
+$ cd -
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>msg</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rosmsg show [message type]</code> 查看message
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">rosmsg show beginner_tutorials/Num</code> – example1</li>
+      <li><code class="language-plaintext highlighter-rouge">rosmsg show Num</code> – example2</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">rostopic echo [topic]</code> 获取指定topic的message。<strong>(可用于查看message 数据流)</strong><br />
+此时运行echo的terminal也subscribe了topic的信息，因此在<strong>rqt-graph</strong>中可以看到rostopic</li>
+</ul>
+
+<p><strong>srv</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">rossrv show [service type]</code> 查看service
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">rossrv show beginner_tutorials/AddTwoInts</code> – example1</li>
+      <li><code class="language-plaintext highlighter-rouge">rossrv show AddTwoInts</code> – example2<br />
+可在<strong>rqt</strong>中简单地call service以测试</li>
+    </ul>
+  </li>
+</ul>
+:ET

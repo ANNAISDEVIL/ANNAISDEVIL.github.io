@@ -91,6 +91,14 @@
                     {% endif %}                    -->
                 </ul>
                 <p class="copyright text-muted">
+                    <!--不蒜子访客记录-->
+                    <span id="busuanzi_container_site_pv">
+                        👀 <span id="busuanzi_value_site_pv"></span> times |
+                    </span>
+                    <span id="busuanzi_container_site_uv">
+                        👣 <span id="busuanzi_value_site_uv"></span> person-time
+                    </span>
+                    <br>                    
                     Copyright &copy; {{ site.title }} {{ site.time | date: '%Y' }}
                     <br>
                     Theme on <a href="{{ site.github_repo }}">GitHub</a> |
@@ -268,3 +276,11 @@
 </script>
 {% endif %}
 
+{% include button.html %}
+
+<!--总访客 不蒜子 组件引入-->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<!--跳转底部-->
+<div id="bottom"></div>
